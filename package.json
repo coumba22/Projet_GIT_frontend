@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.jsx",
-    "proxy": "http://localhost:5000",
+    //"proxy": "http://localhost:5000",
 
     "scripts": {
         "start": "react-scripts start --config webpack.config.js",
