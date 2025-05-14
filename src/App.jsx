@@ -2,6 +2,7 @@ import React from 'react';
 import Dashboard from './components/Dashboard';
 import StudentForm from './components/StudentForm';
 
+
 function App() {
     return (
         <div>
@@ -9,7 +10,10 @@ function App() {
             <StudentForm />
             <Dashboard />
         </div>
+
     );
+
+    
 }
 
 export default App;

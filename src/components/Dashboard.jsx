@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; 
 import Chart from './Chart';
+import StudentList from './StudentList'; // Importer le composant StudentList
 
 function Dashboard() {
     const [reports, setReports] = useState([]);
@@ -9,7 +10,6 @@ function Dashboard() {
             .then(response => response.json())
             .then(data => setReports(data));
     }, []);
-    
 
     const data = reports.map(report => ({
         name: report.name,
@@ -19,7 +19,10 @@ function Dashboard() {
     return (
         <div>
             <h2>Rapports d'Analyse</h2>
-            <Chart data={data} />
+            <Chart data={data} />  {/* Affichage du graphique */}
+
+            <h2>Liste des Élèves</h2>
+            <StudentList />  {/* Affichage de la liste des étudiants */}
         </div>
     );
 }
