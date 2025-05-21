@@ -95,3 +95,16 @@
 .students-table li {
     margin-bottom: 2px;
 }
+
+
+.student-name-link {
+    text-decoration: none; /* This removes the underline */
+    color: inherit; /* Optional: Keep the link color the same as its parent text */
+    /* You can add other styling here if you want, e.g., */
+    /* font-weight: bold; */
+}
+
+/* If you want to change the color when hovering, add this: */
+.student-name-link:hover {
+    color: #005813; /* Example: A blue color on hover */
+}

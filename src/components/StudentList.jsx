@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../style/StudentList.css'; // Ensure this CSS file exists and is correctly styled
+import { Link } from 'react-router-dom';
 
 function StudentList() {
     const [studentsOrganized, setStudentsOrganized] = useState({});
@@ -98,7 +99,9 @@ function StudentList() {
 
                             return (
                                 <tr key={student.id}>
-                                    <td>{student.name} ({student.no_etudiant})</td>
+                                    <td><Link to={`/students/${student.id}`} className="student-name-link">
+                                        {student.name} ({student.no_etudiant})
+                                    </Link></td>
                                     <td>
                                         {groupForThisYear ? (
                                             groupForThisYear.name
