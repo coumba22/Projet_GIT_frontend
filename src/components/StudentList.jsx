@@ -1,58 +1,146 @@
 import React, { useState, useEffect } from 'react';
+import '../style/StudentList.css'; // Ensure this CSS file exists and is correctly styled
 
 function StudentList() {
-    const [students, setStudents] = useState([]);
-    const [error, setError] = useState('');
+    const [studentsOrganized, setStudentsOrganized] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [openYears, setOpenYears] = useState({});
 
-    // Récupère les étudiants depuis l'API
     useEffect(() => {
-        const fetchStudents = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/students');
-                
-                // Si la réponse n'est pas ok (par exemple 404 ou 500), lance une erreur
+        fetch('http://localhost:5000/api/students')
+            .then(response => {
                 if (!response.ok) {
-                    throw new Error(`Erreur HTTP: ${response.status}`);
+                    throw new Error(`Erreur HTTP! statut: ${response.status}`);
                 }
+                return response.json();
+            })
+            .then(data => {
+                const organizedData = {};
 
-                // Parse la réponse en JSON
-                const data = await response.json();
-                setStudents(data);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des étudiants:", error);
-                setError("Erreur lors de la récupération des étudiants.");
-            }
-        };
+                data.forEach(studentItem => {
+                    const yearsToProcess = studentItem.years_assigned && studentItem.years_assigned.length > 0
+                        ? studentItem.years_assigned
+                        : ['Non assigné'];
 
-        fetchStudents();
+                    const studentClassType = studentItem.class === 'IM' ? 'IM' : 'MIAGE';
+
+                    yearsToProcess.forEach(year => {
+                        if (!organizedData[year]) {
+                            organizedData[year] = { 'IM': [], 'MIAGE': [] };
+                        }
+                        
+                        // Add the student to the appropriate class array for this year
+                        if (studentClassType === 'IM') {
+                            organizedData[year]['IM'].push(studentItem);
+                        } else {
+                            organizedData[year]['MIAGE'].push(studentItem);
+                        }
+                    });
+                });
+
+                setStudentsOrganized(organizedData);
+
+                const currentYear = new Date().getFullYear();
+                const initialOpenYears = {};
+                Object.keys(organizedData).forEach(year => {
+                    initialOpenYears[year] = (year === 'Non assigné' || parseInt(year) >= currentYear);
+                });
+                setOpenYears(initialOpenYears);
+
+                setLoading(false);
+            })
+            .catch(error => {
+                setError(error);
+                setLoading(false);
+            });
     }, []);
 
-    // Si une erreur se produit, affiche un message d'erreur
-    if (error) {
-        return <div>{error}</div>;
+    const toggleYear = (year) => {
+        setOpenYears(prevOpenYears => ({
+            ...prevOpenYears,
+            [year]: !prevOpenYears[year]
+        }));
+    };
+
+    if (loading) {
+        return <div>Chargement des étudiants...</div>;
     }
 
-    return (
-        <div>
-            <h2>Liste des élèves</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nom</th>
-                        <th>Groupe</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {students.map((student) => (
-                        <tr key={student.id}>
-                            <td>{student.id}</td>
-                            <td>{student.name}</td>
-                            <td>{student.group_id}</td>
+    if (error) {
+        return <div>Erreur lors du chargement des étudiants: {error.message}</div>;
+    }
+
+    const sortedYears = Object.keys(studentsOrganized).sort((a, b) => {
+        if (a === 'Non assigné') return 1;
+        if (b === 'Non assigné') return -1;
+        return b - a;
+    });
+
+    const renderStudentsTable = (students, title, currentYear) => (
+        <div className="class-section">
+            <h4>{title}</h4>
+            {students.length > 0 ? (
+                <table className="students-table">
+                    <thead>
+                        <tr>
+                            <th>Nom </th>
+                            <th>Groupe</th> {/* Changed to singular 'Groupe' */}
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {students.map(student => {
+                            // Find the group specifically for the currentYear being rendered
+                            const groupForThisYear = student.groups.find(group =>
+                                // Ensure group.year is a number for comparison if currentYear is also a number
+                                parseInt(group.year) === parseInt(currentYear)
+                            );
+
+                            return (
+                                <tr key={student.id}>
+                                    <td>{student.name} ({student.no_etudiant})</td>
+                                    <td>
+                                        {groupForThisYear ? (
+                                            groupForThisYear.name
+                                        ) : (
+                                            "" // Or an empty string if you prefer it blank
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            ) : (
+                <p>Aucun étudiant {title} pour cette année.</p>
+            )}
+        </div>
+    );
+
+    return (
+        <div className="students-container">
+            <h1>Liste des Étudiants par Année et Filière</h1>
+            {sortedYears.length > 0 ? (
+                sortedYears.map(year => (
+                    <div key={year} className="year-section">
+                        <h2 onClick={() => toggleYear(year)} className="year-title">
+                            Année {year}
+                            <span className="toggle-icon">
+                                {openYears[year] ? ' ▼' : ' ►'}
+                            </span>
+                        </h2>
+                        {openYears[year] && (
+                            <div className="year-content-tables">
+                                {/* Pass the current 'year' to the renderStudentsTable function */}
+                                {renderStudentsTable(studentsOrganized[year]['IM'], 'IM', year)}
+                                {renderStudentsTable(studentsOrganized[year]['MIAGE'], 'MIAGE (FI/FA)', year)}
+                            </div>
+                        )}
+                    </div>
+                ))
+            ) : (
+                <p>Aucun étudiant trouvé.</p>
+            )}
         </div>
     );
 }

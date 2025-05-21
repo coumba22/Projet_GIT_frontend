@@ -1,0 +1,97 @@
+/* src/style/Toolbar.css */
+
+.toolbar {
+    background-color: #333;
+    padding: 20px 30px; /* This is internal padding, keep it for toolbar content */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    position: relative;
+    z-index: 1000;
+    /* No changes needed here, the global reset will handle it */
+}
+
+.toolbar-left .toolbar-logo {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.toolbar-nav {
+    list-style: none; /* Remove default list bullets */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Arrange main nav items horizontally */
+}
+
+/* Style for individual dropdown containers */
+.dropdown {
+    position: relative; /* Important: dropdown menu positions relative to this item */
+    margin-left: 20px;
+}
+
+/* Style for the clickable text (e.g., "Mes classes", "Tableau de bord") */
+.dropdown-toggle {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1em;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer; /* Indicate it's clickable */
+    display: flex; /* Align text and arrow */
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.dropdown-toggle:hover {
+    background-color: #555;
+}
+
+.dropdown-arrow {
+    margin-left: 5px; /* Space between text and arrow */
+    font-size: 0.8em; /* Smaller arrow */
+}
+
+/* Style for the actual dropdown menu (the <ul> that appears) */
+.dropdown-menu {
+    position: absolute; /* Position relative to the parent .dropdown */
+    top: 100%; /* Place it directly below the dropdown-toggle */
+    left: 0;
+    background-color: #444; /* Slightly different background for the menu */
+    list-style: none;
+    padding: 0;
+    margin: 5px 0 0 0; /* Small margin from the toggle */
+    min-width: 160px; /* Ensure enough width for text */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    z-index: 1001; /* Ensure dropdown menu is above other content and toolbar itself */
+    display: flex; /* Allows for easy padding/margin on list items */
+    flex-direction: column; /* Stack menu items vertically */
+    overflow: hidden; /* For rounded corners to apply to content */
+}
+
+/* Style for individual links within the dropdown menu */
+.dropdown-menu li {
+    margin: 0; /* Remove default list item margin */
+}
+
+.dropdown-menu a {
+    color: white;
+    padding: 12px 15px; /* Ample padding for clickable area */
+    text-decoration: none;
+    display: block; /* Make the whole area clickable */
+    transition: background-color 0.2s ease;
+}
+
+.dropdown-menu a:hover {
+    background-color: #666;
+}
+
+.toolbar-logo-img {
+    height: 30px; /* Adjust as needed */
+    margin-right: 10px;
+    vertical-align: middle; /* Align with text if you keep it */
+}

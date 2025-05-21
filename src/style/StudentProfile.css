@@ -1,0 +1,85 @@
+/* src/style/StudentProfile.css */
+
+.student-profile-container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 25px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.student-profile-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.student-profile-header h1 {
+    color: #0056b3;
+    font-size: 2.2em;
+    margin-bottom: 10px;
+}
+
+.student-profile-header p {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.student-profile-section {
+    margin-bottom: 25px;
+    padding: 15px;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    border: 1px solid #e5e5e5;
+}
+
+.student-profile-section h2 {
+    color: #007bff;
+    font-size: 1.6em;
+    margin-top: 0;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #c0c0c0;
+}
+
+.group-list, .year-list {
+    list-style-type: none; /* Remove default bullet points */
+    padding: 0;
+    margin: 0;
+}
+
+.group-list li, .year-list li {
+    background-color: #eaf6ff;
+    border: 1px solid #cce7ff;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.group-list li:last-child, .year-list li:last-child {
+    margin-bottom: 0;
+}
+
+.group-list li::before {
+    content: '📚'; /* Example icon */
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.year-list li::before {
+    content: '🗓️'; /* Example icon */
+    margin-right: 10px;
+    font-size: 1.2em;
+}
+
+.error-message {
+    color: #d9534f;
+    font-weight: bold;
+    text-align: center;
+}

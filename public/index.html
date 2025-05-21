@@ -4,15 +4,18 @@
 <head>
     <meta charset="utf-8" />
     <!-- Correction de l'URL du favicon -->
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="manifest" href="manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <title>Projet GIT - Dashboard</title>
 </head>
 
 <body>
-    <noscript>Vous devez activer JavaScript pour exécuter cette application.</noscript>
-    <div id="root"></div>
+    <div id="root">
+        <p id="message"></p>
+    </div>
+
 </body>
 
 </html>
