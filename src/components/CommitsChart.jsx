@@ -21,29 +21,8 @@ ChartJS.register(
   Legend
 );
 
-function CommitsChart({ data }) {
-  // data attendu : tableau d'objets avec { date: 'YYYY-MM-DD', commits: number }
-
-  // Trie les données par date (sécurité)
-  const sortedData = data.slice().sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  // Prépare labels (dates) et valeurs (nombre de commits)
-  const labels = sortedData.map(entry => entry.date);
-  const commitsData = sortedData.map(entry => entry.commits);
-
-  const chartData = {
-    labels,
-    datasets: [
-      {
-        label: 'Nombre de commits',
-        data: commitsData,
-        fill: false,
-        backgroundColor: 'rgb(75, 192, 192)',
-        borderColor: 'rgba(75, 192, 192, 0.5)',
-        tension: 0.1,
-      },
-    ],
-  };
+function CommitsChart({ chartData }) {
+  // chartData attendu : { labels: [...], datasets: [...] }
 
   const options = {
     responsive: true,
@@ -51,7 +30,7 @@ function CommitsChart({ data }) {
       legend: { position: 'top' },
       title: {
         display: true,
-        text: 'Commits à travers le temps',
+        text: 'Commits à travers le temps (total et par contributeur)',
       },
     },
     scales: {

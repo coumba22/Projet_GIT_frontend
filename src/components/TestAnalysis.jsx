@@ -1,61 +1,103 @@
 import React, { useState } from 'react';
-import CommitsChart from './CommitsChart'; // Assurez-vous que le chemin est correct
+import CommitsChart from './CommitsChart'; // ton composant déjà défini
 
 function TestAnalysis() {
-  // State pour stocker les données envoyées à l'API
   const [requestData, setRequestData] = useState({
-    repo_url: "https://github.com/uha-fr/-archiweb_2025_projets_gr03_front",
+    repo_url: "https://github.com/coumba22/Projet-GIT",
     tool: "code_archeologist"
   });
-
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
+  const [chartData, setChartData] = useState(null);
   const [error, setError] = useState(null);
 
   const handleAnalyze = async () => {
-  setLoading(true);
-  setError(null);
-  setResult(null);
+    setLoading(true);
+    setError(null);
+    setChartData(null);
 
-  try {
-    const response = await fetch('http://127.0.0.1:5000/api/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestData),
-    });
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestData),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Erreur serveur: ${response.status}`);
-    }
+      if (!response.ok) {
+        throw new Error(`Erreur serveur: ${response.status}`);
+      }
 
-    const data = await response.json();
+      const data = await response.json();
 
-    // Agrégation commits par date (format YYYY-MM-DD)
-    const commitsByDate = data.result.commits.reduce((acc, commit) => {
-      const dateKey = commit.date.slice(0, 10); // extraire YYYY-MM-DD
-      acc[dateKey] = (acc[dateKey] || 0) + 1;
-      return acc;
-    }, {});
-
-    // Transformer en tableau [{date, commits}]
-    const commitsArray = Object.entries(commitsByDate).map(([date, count]) => ({
-      date,
-      commits: count,
-    }));
-
-    setResult({ ...data.result, commits: commitsArray });
-    } catch (err) {
-        setError(err.message || "Erreur inconnue");
-    } finally {
+      if (!data.result?.commits || data.result.commits.length === 0) {
+        setError('Aucune donnée de commits disponible.');
         setLoading(false);
+        return;
+      }
+
+      // Préparation des données pour le graphique
+      const commits = data.result.commits;
+      const datesSet = new Set();
+      commits.forEach(c => datesSet.add(c.date.slice(0, 10)));
+      const labels = Array.from(datesSet).sort();
+
+      const authors = Array.from(new Set(commits.map(c => c.author)));
+
+      // Initialisation structure
+      const commitsByDateAuthor = {};
+      labels.forEach(date => {
+        commitsByDateAuthor[date] = {};
+        authors.forEach(author => commitsByDateAuthor[date][author] = 0);
+        commitsByDateAuthor[date].total = 0;
+      });
+
+      // Remplissage
+      commits.forEach(c => {
+        const date = c.date.slice(0, 10);
+        commitsByDateAuthor[date][c.author]++;
+        commitsByDateAuthor[date].total++;
+      });
+
+      // Couleurs pour les séries
+      const colors = [
+        'rgb(75, 192, 192)',
+        'rgb(255, 99, 132)',
+        'rgb(255, 206, 86)',
+        'rgb(54, 162, 235)',
+        'rgb(153, 102, 255)',
+        'rgb(255, 159, 64)',
+      ];
+
+      const datasets = [{
+        label: 'Total',
+        data: labels.map(date => commitsByDateAuthor[date].total),
+        borderColor: 'rgba(0,0,0,0.7)',
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        fill: false,
+        tension: 0.1,
+      }];
+
+      authors.forEach((author, i) => {
+        datasets.push({
+          label: author,
+          data: labels.map(date => commitsByDateAuthor[date][author]),
+          borderColor: colors[i % colors.length],
+          backgroundColor: colors[i % colors.length],
+          fill: false,
+          tension: 0.1,
+        });
+      });
+
+      setChartData({ labels, datasets });
+    } catch (err) {
+      setError(err.message || 'Erreur inconnue');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
       <h2>Test Analyse API</h2>
-
-      {/* Champ pour saisir le repo URL */}
       <input
         type="text"
         value={requestData.repo_url}
@@ -63,24 +105,17 @@ function TestAnalysis() {
         placeholder="URL du repo GitHub"
         style={{ width: '400px', marginRight: '10px' }}
       />
-
       <button onClick={handleAnalyze} disabled={loading}>
         {loading ? 'Analyse en cours...' : 'Lancer l’analyse'}
       </button>
 
       {error && <p style={{ color: 'red' }}>Erreur : {error}</p>}
 
-      {result && (
-        <div>
-          <h3>Résultat de l’analyse :</h3>
-          {/* Affiche le graphique avec les données commits si dispo */}
-            {result.commits ? (
-                <CommitsChart data={result.commits} />
-            ) : (
-                <p>Aucune donnée de commits disponible.</p>
-          )}
-        </div>
-      )}
+      {chartData ? (
+        <CommitsChart chartData={chartData} />
+      ) : !loading && !error ? (
+        <p>Résultat de l’analyse : Aucune donnée de commits disponible.</p>
+      ) : null}
     </div>
   );
 }
