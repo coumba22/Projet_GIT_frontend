@@ -47,38 +47,50 @@ function StudentProfile() {
     return (
         <div className="student-profile-container">
             <header className="student-profile-header">
-                <h1>Profil de l'étudiant : {student.name}</h1>
-                <p><strong>Numéro étudiant:</strong> {student.no_etudiant}</p>
-                <p><strong>Filière:</strong> {student.class}</p>
+                <h1>{student.surname} {student.name}</h1>
             </header>
 
             <section className="student-profile-section">
-                <h2>Groupes assignés</h2>
-                {student.groups && student.groups.length > 0 ? (
-                    <ul className="group-list">
-                        {student.groups.map(group => (
-                            <li key={group.id}>
-                                Groupe **{group.name}** (Année: {group.year})
-                            </li>
-                        ))}
+                <h2>Profil</h2>
+                    <ul className="info-list">
+                        <li><strong>Numéro étudiant:</strong> {student.no_etudiant}</li>
+                        <li><strong>Filière:</strong> {student.class}</li>
+                        <li><strong>GitHub:</strong> {student.gitname}</li>
                     </ul>
-                ) : (
-                    <p>Cet étudiant n'est assigné à aucun groupe.</p>
-                )}
             </section>
 
+            {student.groups && student.groups.length > 0 ? (
             <section className="student-profile-section">
-                <h2>Années académiques assignées</h2>
-                {student.years_assigned && student.years_assigned.length > 0 ? (
-                    <ul className="year-list">
-                        {student.years_assigned.sort((a, b) => b - a).map((year, index) => (
-                            <li key={index}>Année **{year}**</li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>Cet étudiant n'est assigné à aucune année académique.</p>
-                )}
+                <h2>Projet</h2>
+                <ul className="group-list">
+                    {student.groups.map(group => (
+                        <li key={group.id}>
+                            Groupe {group.name} - {group.year}
+                            <ul className="repo-projet-list">
+                                {student.repositories_projet.map(repo => (
+                                    <li key={repo.id}>
+                                        {repo.name}
+                                    </li>
+                                ))}
+                            </ul>
+                        </li>
+                    ))}
+                </ul>
             </section>
+            ) : null}
+
+            {(student.repositories_td && student.repositories_td.length) > 0 ? (
+            <section className="student-profile-section">
+                <h2>TDs</h2>
+                <ul className="repo-td-list">
+                    {student.repositories_td.map(repo => (
+                        <li key={repo.id}>
+                            {repo.name}
+                        </li>
+                    ))}
+                </ul>
+            </section>
+            ) : null}
 
             {/* You can add more sections here for projects, etc., if available in student data */}
         </div>

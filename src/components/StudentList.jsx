@@ -100,7 +100,7 @@ function StudentList() {
                             return (
                                 <tr key={student.id}>
                                     <td><Link to={`/students/${student.id}`} className="student-name-link">
-                                        {student.name} ({student.no_etudiant})
+                                        {student.surname} {student.name}
                                     </Link></td>
                                     <td>
                                         {groupForThisYear ? (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import '../style/GroupList.css'; // You'll create this file for basic styling
 
 function GroupList() {
@@ -90,7 +91,9 @@ function GroupList() {
                                             {group.students && group.students.length > 0 ? (
                                                 <ul>
                                                     {group.students.map((student) => (
-                                                        <li key={student.id}>{student.name}</li>
+                                                        <li><Link to={`/students/${student.id}`} className="student-name-link">
+                                                            {student.surname} {student.name}
+                                                        </Link></li>
                                                     ))}
                                                 </ul>
                                             ) : (
