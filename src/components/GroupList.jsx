@@ -87,7 +87,9 @@ function GroupList() {
                                 {groupsByYear[year].length > 0 ? (
                                     groupsByYear[year].map(group => (
                                         <div key={group.id} className="group-card">
-                                            <h3>Groupe {group.name}</h3> {/* Use group.name */}
+                                            <h3><Link to={`/group-analysis/groups/${group.id}`} className="student-name-link">
+                                                Groupe {group.name}
+                                            </Link></h3>
                                             {group.students && group.students.length > 0 ? (
                                                 <ul>
                                                     {group.students.map((student) => (

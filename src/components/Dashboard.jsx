@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; 
-import Chart from './CommitsChart';
+import Chart from '../graphs/CommitsChart';
 import StudentList from './StudentList'; // Importer le composant StudentList
 
 function Dashboard() {

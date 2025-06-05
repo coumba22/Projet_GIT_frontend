@@ -8,7 +8,7 @@ import GroupList from './components/GroupList';
 import './style/App.css';
 import StudentProfile from './components/StudentProfile'; // Import your StudentProfile component
 import StudentList from './components/StudentList';
-import TestAnalysis from './components/TestAnalysis'; 
+import GroupAnalysis from './components/GroupAnalysis'; 
 
 // Define your HomePage component, as it's used in your routes
 // If this is a separate file, then import it: import HomePage from './components/HomePage';
@@ -28,7 +28,8 @@ function App() {
                             <Route path="/classes/students" element={<StudentList />} />
                             <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/students/:id" element={<StudentProfile />} />
-                            <Route path="/test-analysis" element={<TestAnalysis />} />
+                            <Route path="/group-analysis" element={<GroupAnalysis />} />
+                            <Route path="/group-analysis/groups/:id" element={<GroupAnalysis />} />
                             <Route path="*" element={<div>404 - Page Not Found</div>} />
 
                         </Routes>
