@@ -1,53 +1,129 @@
+// CommitActivityTimeline.jsx
 import React, { useEffect, useState } from 'react';
-import CommitsChart from './CommitsChart';
+import { Line } from 'react-chartjs-2';
+import axios from 'axios';
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  PointElement,
+  CategoryScale,
+  LinearScale,
+} from 'chart.js';
 
-function CommitActivityTimeline({ analysisId }) {
+ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale);
+
+export default function CommitActivityTimeline({ analysisId }) {
   const [commitActivity, setCommitActivity] = useState([]);
   const [chartData, setChartData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const prepareChartData = (activity) => {
-    if (!activity.length) return null;
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Commit Activity Timeline',
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          precision: 0,
+        },
+      },
+    },
+  };
 
-    const data = activity.map((week) => ({
-      date: new Date(week.week * 1000), // timestamp en secondes
-      count: week.total,
-    }));
+  // Helper pour extraire un pseudo lisible depuis une adresse email
+  const extractPseudoFromEmail = (email) => {
+    if (email.includes('+')) {
+      return email.split('+')[1].split('@')[0];
+    }
+    return email.split('@')[0];
+  };
 
-    return {
-      labels: data.map(d => d.date.toLocaleDateString()),
-      datasets: [{
-        label: 'Commits',
-        data: data.map(d => d.count),
-        borderColor: '#2196F3',
-        backgroundColor: 'rgba(33, 150, 243, 0.2)',
+  const prepareChartData = (dataObj) => {
+    const dates = Object.keys(dataObj).sort();
+    const contributorsSet = new Set();
+
+    // Collecter tous les pseudos pour construire les datasets
+    for (const daily of Object.values(dataObj)) {
+      for (const email of Object.keys(daily)) {
+        contributorsSet.add(extractPseudoFromEmail(email));
+      }
+    }
+
+    const contributors = Array.from(contributorsSet);
+
+    // Initialiser les structures de données
+    const labels = dates.map(dateStr => new Date(dateStr).toLocaleDateString());
+    const totalCommitsPerDay = dates.map(dateStr =>
+      Object.values(dataObj[dateStr]).reduce((sum, count) => sum + count, 0)
+    );
+
+    const contributorDataMap = {};
+    for (const pseudo of contributors) {
+      contributorDataMap[pseudo] = dates.map(dateStr => {
+        const daily = dataObj[dateStr] || {};
+        let total = 0;
+        for (const [email, count] of Object.entries(daily)) {
+          if (extractPseudoFromEmail(email) === pseudo) {
+            total += count;
+          }
+        }
+        return total;
+      });
+    }
+
+    // Couleurs générées automatiquement
+    const colorPalette = ['#2196F3', '#4CAF50', '#FF9800', '#9C27B0', '#F44336', '#3F51B5', '#795548', '#009688'];
+    const datasets = [
+      {
+        label: 'Total Commits',
+        data: totalCommitsPerDay,
+        borderColor: '#000000',
+        borderWidth: 2,
         tension: 0.1,
-        fill: true,
-      }]
-    };
+      },
+      ...contributors.map((pseudo, index) => ({
+        label: pseudo,
+        data: contributorDataMap[pseudo],
+        borderColor: colorPalette[index % colorPalette.length],
+        borderWidth: 1.5,
+        borderDash: [4, 2],
+        tension: 0.1,
+      })),
+    ];
+
+    return { labels, datasets };
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
       try {
-        const response = await axios.get('/api/commit-activity-timeline', {
+        const response = await axios.get('http://localhost:3000/api/commit-activity-timeline', {
           withCredentials: true,
-          params: { analysisId }
+          params: { analysisId },
         });
 
         if (response.data.status === 'success') {
-          const activity = response.data.data || [];
-          setCommitActivity(activity);
-          setChartData(prepareChartData(activity));
+          const data = response.data.data || [];
+          setCommitActivity(data);
+          setChartData(prepareChartData(data));
         } else {
-          throw new Error(response.data.error);
+          throw new Error(response.data.error || 'Unknown error');
         }
       } catch (err) {
-        console.error('Error fetching commit activity:', err);
-        setError(err.response?.data?.error || 'Erreur lors du chargement des données.');
+        console.error('Error fetching commit activity data:', err);
+        setError(err.response?.data?.error || 'Failed to load commit activity data.');
       } finally {
         setIsLoading(false);
       }
@@ -57,16 +133,14 @@ function CommitActivityTimeline({ analysisId }) {
   }, [analysisId]);
 
   return (
-    <div className="commit-activity-timeline" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <h2 style={{ textAlign: 'center' }}>Commit Activity Timeline</h2>
-      {isLoading && <div style={{ textAlign: 'center', fontStyle: 'italic' }}>Chargement des données…</div>}
-      {error && <div style={{ textAlign: 'center', color: '#e53935' }}>{error}</div>}
+    <div className="commit-activity-timeline max-w-3xl mx-auto">
+      <h2 className="text-center text-xl font-bold mb-4">Commit Activity Timeline</h2>
+      {error && <div className="text-center text-red-600 italic mt-4">{error}</div>}
+      {isLoading && <div className="text-center text-gray-600 italic mt-4">Loading commit activity data...</div>}
       {!isLoading && !error && commitActivity.length === 0 && (
-        <div style={{ textAlign: 'center', fontStyle: 'italic' }}>Aucune donnée disponible.</div>
+        <div className="text-center text-gray-600 italic mt-4">No commit activity data available.</div>
       )}
-      {chartData && <CommitsChart chartData={chartData} />}
+      {!isLoading && chartData && <Line data={chartData} options={chartOptions} />}
     </div>
   );
 }
-
-export default CommitActivityTimeline;

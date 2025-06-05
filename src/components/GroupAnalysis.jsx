@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import CommitsChart from '../graphs/CommitsChart.jsx';
 import '../style/GroupAnalysis.css';  // Import du CSS
-import '../graphs/CommitActivityTimeline.jsx'; // Import du CSS pour les graphiques
+import CommitActivityTimeline from '../graphs/CommitActivityTimeline.jsx';
+import HeatMapFileChanges from '../graphs/HeatMapFileChanges.jsx';
+
 
 function GroupAnalysis() {
   const { id } = useParams();
@@ -73,59 +75,22 @@ function GroupAnalysis() {
 
       const data = await response.json();
 
-      if (!data.result?.commits || data.result.commits.length === 0) {
+      if (data.result.data.status !== 'completed') {
         throw new Error('Aucune donnée de commits disponible.');
+      } else {
+        // Calcul total commits corrigé
+        const totalCommits = Object.values(data.result.data.commit_activity || {})
+          .reduce((acc, contributors) => acc + Object.values(contributors).reduce((sum, c) => sum + c, 0), 0);
+
+        setChartsData(prev => ({
+          ...prev,
+          [repo.id]: {
+            analysisId: parseInt(data.result.data.id, 10),
+            message: `Nombre de commits : ${totalCommits}`
+          }
+        }));
       }
 
-      const commits = data.result.commits;
-      const datesSet = new Set();
-      commits.forEach(c => datesSet.add(c.date.slice(0, 10)));
-      const labels = Array.from(datesSet).sort();
-      const authors = Array.from(new Set(commits.map(c => c.author)));
-      const commitsByDateAuthor = {};
-      labels.forEach(date => {
-        commitsByDateAuthor[date] = {};
-        authors.forEach(author => commitsByDateAuthor[date][author] = 0);
-        commitsByDateAuthor[date].total = 0;
-      });
-      commits.forEach(c => {
-        const date = c.date.slice(0, 10);
-        commitsByDateAuthor[date][c.author]++;
-        commitsByDateAuthor[date].total++;
-      });
-
-      const colors = [
-        'rgb(75, 192, 192)',
-        'rgb(255, 99, 132)',
-        'rgb(255, 206, 86)',
-        'rgb(54, 162, 235)',
-        'rgb(153, 102, 255)',
-        'rgb(255, 159, 64)',
-      ];
-
-      const datasets = [{
-        label: 'Total',
-        data: labels.map(date => commitsByDateAuthor[date].total),
-        borderColor: 'rgba(0,0,0,0.7)',
-        backgroundColor: 'rgba(0,0,0,0.3)',
-        fill: false,
-        tension: 0.1,
-      }];
-      authors.forEach((author, i) => {
-        datasets.push({
-          label: author,
-          data: labels.map(date => commitsByDateAuthor[date][author]),
-          borderColor: colors[i % colors.length],
-          backgroundColor: colors[i % colors.length],
-          fill: false,
-          tension: 0.1,
-        });
-      });
-
-      setChartsData(prev => ({
-        ...prev,
-        [repo.id]: { labels, datasets }
-      }));
     } catch (err) {
       setErrors(prev => ({
         ...prev,
@@ -177,7 +142,11 @@ function GroupAnalysis() {
           ) : errors[repo.id] ? (
             <p className="error-text">Erreur : {errors[repo.id]}</p>
           ) : chartsData[repo.id] ? (
-            <CommitActivityTimeline commits={chartsData[repo.id]} />
+            <>
+              <p>{chartsData[repo.id].message}</p>
+              <CommitActivityTimeline analysisId={chartsData[repo.id].analysisId} />
+              <HeatMapFileChanges analysisId={chartsData[repo.id].analysisId} />
+            </>
           ) : (
             <p className="loading-text">Préparation de l’analyse...</p>
           )}

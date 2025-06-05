@@ -20,6 +20,11 @@
   letter-spacing: 0.03em;
 }
 
+.success-text {
+  color: green;
+  font-weight: bold;
+}
+
 .students-list {
   border: 1px solid #ddd;
   border-radius: 8px;
