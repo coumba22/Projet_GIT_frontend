@@ -28,8 +28,8 @@ export default function CommitActivityTimeline({ analysisId }) {
         position: 'top',
       },
       title: {
-        display: true,
-        text: 'Commit Activity Timeline',
+        display: false,
+        text: 'Nombre de commits par jour',
       },
     },
     scales: {
@@ -116,6 +116,7 @@ export default function CommitActivityTimeline({ analysisId }) {
 
         if (response.data.status === 'success') {
           const data = response.data.data || [];
+          console.log(`Commit activity ${analysisId} | `, response.data.analysisId);
           setCommitActivity(data);
           setChartData(prepareChartData(data));
         } else {
@@ -133,14 +134,18 @@ export default function CommitActivityTimeline({ analysisId }) {
   }, [analysisId]);
 
   return (
-    <div className="commit-activity-timeline max-w-3xl mx-auto">
-      <h2 className="text-center text-xl font-bold mb-4">Commit Activity Timeline</h2>
-      {error && <div className="text-center text-red-600 italic mt-4">{error}</div>}
-      {isLoading && <div className="text-center text-gray-600 italic mt-4">Loading commit activity data...</div>}
-      {!isLoading && !error && commitActivity.length === 0 && (
-        <div className="text-center text-gray-600 italic mt-4">No commit activity data available.</div>
-      )}
-      {!isLoading && chartData && <Line data={chartData} options={chartOptions} />}
-    </div>
+    <>
+        <h4>
+            Nombre de commits par jour {analysisId}
+        </h4>
+        <div className="commit-activity-timeline max-w-3xl mx-auto">
+            {error && <div className="text-center text-red-600 italic mt-4">{error}</div>}
+            {isLoading && <div className="text-center text-gray-600 italic mt-4">Loading commit activity data...</div>}
+            {!isLoading && !error && commitActivity.length === 0 && (
+                <div className="text-center text-gray-600 italic mt-4">No commit activity data available.</div>
+            )}
+            {!isLoading && chartData && <Line data={chartData} options={chartOptions} />}
+        </div>
+    </>
   );
 }

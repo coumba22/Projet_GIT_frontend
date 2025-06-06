@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import CommitsChart from '../graphs/CommitsChart.jsx';
-import '../style/GroupAnalysis.css';  // Import du CSS
+import '../style/GroupAnalysis.css';
 import CommitActivityTimeline from '../graphs/CommitActivityTimeline.jsx';
 import HeatMapFileChanges from '../graphs/HeatMapFileChanges.jsx';
-
+import FileChangeFrequencyGraph from '../graphs/FileChangeFrequencyGraph.jsx';
+import CodeEvolution from '../graphs/CodeEvolution.jsx';
 
 function GroupAnalysis() {
   const { id } = useParams();
@@ -14,6 +15,8 @@ function GroupAnalysis() {
   const [repoLoading, setRepoLoading] = useState({});
   const [errors, setErrors] = useState({});
   const [students, setStudents] = useState([]);
+  const [groupInfo, setGroupInfo] = useState([]);
+
 
   useEffect(() => {
     if (!id) return;
@@ -42,6 +45,8 @@ function GroupAnalysis() {
       })
       .then(data => {
         setStudents(data.students || []);
+        setGroupInfo({ name: data.name, year: data.year });
+     
       })
       .catch(err => {
         setErrors(prev => ({ ...prev, students: err.message }));
@@ -50,8 +55,8 @@ function GroupAnalysis() {
 
   useEffect(() => {
     if (repos.length === 0) return;
-    repos.forEach(repo => {
-      launchAnalysis(repo);
+    repos.forEach((repo) => {
+        launchAnalysis(repo);
     });
   }, [repos]);
 
@@ -74,11 +79,11 @@ function GroupAnalysis() {
       }
 
       const data = await response.json();
+      console.log(`Analysis data for repo ${repo.id}`, data.result.data);
 
       if (data.result.data.status !== 'completed') {
         throw new Error('Aucune donnée de commits disponible.');
       } else {
-        // Calcul total commits corrigé
         const totalCommits = Object.values(data.result.data.commit_activity || {})
           .reduce((acc, contributors) => acc + Object.values(contributors).reduce((sum, c) => sum + c, 0), 0);
 
@@ -113,7 +118,7 @@ function GroupAnalysis() {
 
   return (
     <div className="group-analysis-container">
-      <h2>Projet du groupe {id}</h2>
+      <h2>Projet du groupe {groupInfo['name']}</h2>
 
       {students.length > 0 ? (
         <div className="students-list">
@@ -143,9 +148,21 @@ function GroupAnalysis() {
             <p className="error-text">Erreur : {errors[repo.id]}</p>
           ) : chartsData[repo.id] ? (
             <>
-              <p>{chartsData[repo.id].message}</p>
-              <CommitActivityTimeline analysisId={chartsData[repo.id].analysisId} />
-              <HeatMapFileChanges analysisId={chartsData[repo.id].analysisId} />
+              <h4>{chartsData[repo.id].message}</h4>
+              <div className="charts-wrapper">
+                <CommitActivityTimeline
+                  key={`timeline-${chartsData[repo.id].analysisId}`}
+                  analysisId={chartsData[repo.id].analysisId}
+                />
+                <FileChangeFrequencyGraph
+                  key={`freqgraph-${chartsData[repo.id].analysisId}`}
+                  analysisId={chartsData[repo.id].analysisId}
+                />
+                <CodeEvolution
+                  key={`codeevo-${chartsData[repo.id].analysisId}`}
+                  analysisId={chartsData[repo.id].analysisId}
+                />
+              </div>
             </>
           ) : (
             <p className="loading-text">Préparation de l’analyse...</p>
