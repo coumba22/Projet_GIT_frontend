@@ -176,7 +176,7 @@ export default function CodeEvolution({ analysisId }) {
 
   return (
     <>
-      <h4>Arborescence {analysisId}</h4>
+      <h4>Arborescence</h4>
       <div className="code-evolution-container">
         <div
           id="code-evolution-graph"

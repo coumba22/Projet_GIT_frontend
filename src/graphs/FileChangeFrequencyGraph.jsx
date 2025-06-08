@@ -84,7 +84,7 @@ const FileChangeFrequencyGraph = ({ analysisId }) => { // <- ajout prop ici
 
   return (
     <>
-      <h4>Modification des fichiers par contributeur {analysisId}</h4>
+      <h4>Modification des fichiers par contributeur</h4>
 
       {error && <div className="text-center text-red-600 italic mt-4">{error}</div>}
       {isLoading && <div className="text-center text-gray-600 italic mt-4">Loading file change frequency data...</div>}

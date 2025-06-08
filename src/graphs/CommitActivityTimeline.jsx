@@ -136,7 +136,7 @@ export default function CommitActivityTimeline({ analysisId }) {
   return (
     <>
         <h4>
-            Nombre de commits par jour {analysisId}
+            Nombre de commits par jour
         </h4>
         <div className="commit-activity-timeline max-w-3xl mx-auto">
             {error && <div className="text-center text-red-600 italic mt-4">{error}</div>}
