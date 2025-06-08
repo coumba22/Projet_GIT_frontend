@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import CommitsChart from '../graphs/CommitsChart.jsx';
-import '../style/GroupAnalysis.css';
+import '../style/MainComponents.css';
 import CommitActivityTimeline from '../graphs/CommitActivityTimeline.jsx';
 import FileChangeFrequencyGraph from '../graphs/FileChangeFrequencyGraph.jsx';
 import CodeEvolution from '../graphs/CodeEvolution.jsx';
@@ -10,7 +10,6 @@ import BlameChartEvolution from '../graphs/BlameChartEvolution.jsx';
 
 function GroupAnalysis() {
   const { id } = useParams();
-
   const [repos, setRepos] = useState([]);
   const [chartsData, setChartsData] = useState({});
   const [loading, setLoading] = useState(true);

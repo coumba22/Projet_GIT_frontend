@@ -70,7 +70,7 @@ function Toolbar() {
                         <ul className="dropdown-menu">
                             <li>
                                 {/* Assuming '/dashboard' is the main dashboard view */}
-                                <Link to="/group-analysis" onClick={closeAllDropdowns}>Vue Générale</Link>
+                                <Link to="/dashboard" onClick={closeAllDropdowns}>Vue Générale</Link>
                             </li>
                             {/* Add more sub-links for "Tableau de bord" here if needed */}
                         </ul>

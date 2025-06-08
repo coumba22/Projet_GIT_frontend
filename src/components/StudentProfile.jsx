@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import '../style/StudentProfile.css';
+import '../style/MainComponents.css';
 
 import CommitActivityTimeline from '../graphs/CommitActivityTimeline.jsx';
 import FileChangeFrequencyGraph from '../graphs/FileChangeFrequencyGraph.jsx';
